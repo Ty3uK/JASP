@@ -4,124 +4,62 @@ using System.Windows.Forms;
 
 public class Struct
 {
-    public string name;
-    public string[] varName, varType;
-    public string[] funcName, funcType;
+    public readonly string name;
+    public readonly Dictionary<string, string> Functions = new Dictionary<string, string>();
+    public readonly Dictionary<string, string> Variables = new Dictionary<string, string>();
 
-    public void FindMethods(string[] text, int start, int end)
+    public Struct(string[] text, int start, int end)
     {
-        string temp = "";
-        int index = 0, bIndex = 0;
-        int lines = 0;
-        int[] nums = new int[text.Length];
+        string[] split;
+        string temp = "", type = "", tmp = "";
+        int index = 0;
+        int fLines = 0, vLines = 0;
+        int[] funcs = new int[text.Length];
+        int[] vars = new int[text.Length];
         for (int i = start; i <= end; i++)
         {
             temp = text[i].Trim();
             if (i == start)
-                name = temp.Substring(7, temp.Length - 7).Replace("{", "");
-            index = temp.IndexOf(' ');
-            bIndex = temp.IndexOf('(');
-            if (index != -1 && index < bIndex && temp.Substring(0, index) != "define" &&
-                    temp.Substring(0, index) != "callback" && temp.Substring(0, index) != "lambda" &&
-                    temp.Substring(0, index) != "library" && temp.Substring(0, index) != "scope" &&
-                    temp.Substring(0, index) != "enum" && temp.Substring(0, index) != "struct" &&
-                    temp.Substring(0, index) != "loop" && temp.Substring(0, index) != "for" &&
-                    temp.Substring(0, index) != "while" && temp.Substring(0, index) != "whilenot" &&
-                    temp.Substring(0, index) != "until" && temp.Substring(0, 2) != "if" &&
-                    temp.Substring(0, index) != "else" && temp.Substring(0, index) != "elseif" &&
-                    temp.Substring(0, index) != "call" && temp.Substring(0, index) != "set" &&
-                    temp.Substring(0, index) != "return" && temp.Substring(0, index) != "exitwhen" &&
-                    temp.Substring(0, index) != "local" && temp.Substring(0, index) != "void" &&
-                    temp.Substring(0, index) != "nothing" && temp.IndexOf('=') == -1 &&
-                    Analyzer.CountSymbolsInText("(", temp) == 1 && Analyzer.CountSymbolsInText(")", temp) == 1 &&
-                    temp.IndexOf(';') == -1)
-                // THEN
-                nums[lines++] = i;
+                name = temp.Substring(7).Replace("{", "");
+            if (Analyzer.IsFunction(temp))
+                funcs[fLines++] = i;
+            else if (Analyzer.IsVariable(temp))
+                vars[vLines++] = i;
         }
-        List<string> names = new List<string>(), types = new List<string>();
-        for (int i = 0; i < lines; i++)
+        for (int i = 0; i < fLines; i++)
         {
-            temp = Format.ReplaceSpacesAndNewLines(text[nums[i]].Trim()).Replace("private ", "").Replace("public ", "").Replace("static ", "");
+            temp = Format.ReplaceSpacesAndNewLines(text[funcs[i]]).Replace("private ", "").Replace("public ", "").Replace("static ", "");
             temp = temp.Substring(0, temp.IndexOf('('));
             index = temp.IndexOf(' ');
-            types.Add(temp.Substring(0, index));
-            names.Add(temp.Substring(index, temp.Length - index));
+            Functions.Add(temp.Substring(0, index), temp.Substring(index + 1));
         }
-        funcName = names.ToArray();
-        funcType = types.ToArray();
-    }
-
-    public void FindVars(string[] text, int start, int end)
-    {
-        string temp = "";
-        int index = 0;
-        int lines = 0;
-        int[] nums = new int[text.Length];
-        int fails = 0;
-        for (int i = start; i <= end; i++)
+        for (int i = 0; i < vLines; i++)
         {
-            temp = text[i].Trim();
-            if (i == start)
-                name = temp.Substring(7, temp.Length - 7).Replace("{", "");
-            index = temp.IndexOf(' ');
-            if (temp.IndexOf('=') == -1 && index > 0 &&
-                Analyzer.CountSymbolsInText("(", temp) == 0 &&
-                Analyzer.CountSymbolsInText(")", temp) == 0 &&
-                Analyzer.CountSymbolsInText("{", temp) == 0 &&
-                Analyzer.CountSymbolsInText("}", temp) == 0 &&
-                temp.Substring(0, index) != "define" && temp.Substring(0, index) != "local" &&
-                temp.Substring(0, index) != "enum" && temp.Substring(0, index) != "struct" &&
-                temp.Substring(0, index) != "loop" && temp.Substring(0, index) != "for" &&
-                temp.Substring(0, index) != "while" && temp.Substring(0, index) != "whilenot" &&
-                temp.Substring(0, index) != "until" && temp.Substring(0, 2) != "if" &&
-                temp.Substring(0, index) != "else" && temp.Substring(0, index) != "elseif" &&
-                temp.Substring(0, index) != "call" && temp.Substring(0, index) != "set" &&
-                temp.Substring(0, index) != "return" && temp.Substring(0, index) != "exitwhen" &&
-                temp.Substring(0, index) != "flush" && temp.Substring(0, index) != "delete")
-                // THEN
-                nums[lines++] = i;
-            else if (temp.Length > 0)
-                if (fails++ > 3)
-                    break;
-        }
-        int commas = 0, sCount = 0;
-        string aTemp = "";
-        string startS = "";
-        List<string> names = new List<string>(), types = new List<string>();
-        for (int i = 0; i < lines; i++)
-        {
-            temp = Format.ReplaceSpacesAndNewLines(text[nums[i]].Trim()).Replace("private ", "").Replace("public ", "").Replace("static ", "");
-            commas = Analyzer.CountSymbolsInText(",", temp);
-            if (temp.IndexOf('=') == -1 && commas > 0)
+            temp = Format.ReplaceSpacesAndNewLines(text[vars[i]]).Replace("private ", "").Replace("public ", "").Replace("static ", "");
+            if (temp.IndexOf(',') > 0)
             {
-                aTemp = temp.Substring(0, temp.IndexOf(','));
-                startS = "";
-                sCount = Analyzer.CountSymbolsInText(" ", aTemp);
-                if (sCount == 2)
-                    startS = aTemp.Substring(0, aTemp.IndexOf(' ', 8));
-                else if (sCount == 3)
-                    startS = aTemp.Substring(0, aTemp.IndexOf(' ', 16));
-                else
-                    startS = aTemp.Substring(0, aTemp.IndexOf(' '));
-                string[] tA = temp.Split(',');
-                for (int j = 0; j < tA.Length; j++)
+                split = temp.Split(',');
+                type = temp.Substring(0, temp.IndexOf(' '));
+                for (int j = 0; j < split.Length; j++)
                 {
-                    aTemp = tA[j].Trim();
                     if (j > 0)
-                        aTemp = startS + ' ' + aTemp;
-                    index = aTemp.IndexOf(' ');
-                    types.Add(aTemp.Substring(0, index));
-                    names.Add(aTemp.Substring(index + 1, aTemp.Length - index - 1));
+                        tmp = type + ' ' + split[j].Trim();
+                    else
+                        tmp = split[j].Trim();
+                    index = tmp.IndexOf(' ');
+                    Variables.Add(tmp.Substring(index + 1), tmp.Substring(0, index));
                 }
             }
             else
             {
-                index = temp.IndexOf(' ');
-                types.Add(temp.Substring(0, index));
-                names.Add(temp.Substring(index + 1, temp.Length - index - 1));
+                index = temp.IndexOf('=');
+                if (index > 0)
+                    tmp = temp.Substring(0, index).Trim();
+                else
+                    tmp = temp;
+                index = tmp.IndexOf(' ');
+                Variables.Add(tmp.Substring(index + 1), tmp.Substring(0, index));
             }
         }
-        varName = names.ToArray();
-        varType = types.ToArray();
     }
 }

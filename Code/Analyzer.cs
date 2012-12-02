@@ -166,9 +166,7 @@ public class Analyzer
                             close = j - 1;
                             break;
                         }
-                tempS = new Struct();
-                tempS.FindVars(text, i, close);
-                tempS.FindMethods(text, i, close);
+                tempS = new Struct(text, i, close);
                 Structs.Add(tempS);
             }
             else
@@ -198,5 +196,56 @@ public class Analyzer
             }
 
         }
+    }
+
+    public static bool IsFunction(string text)
+    {
+        int sIndex = text.IndexOf(' ');
+        int bIndex = text.IndexOf('(');
+        string substr = "";
+        if (text.IndexOf('=') == -1 && sIndex > -1 && sIndex < bIndex)
+        {
+            substr = text.Substring(0, sIndex);
+            if (substr != "define" && substr != "callback" &&
+                substr != "lambda" && substr != "library" &&
+                substr != "scope" && substr != "enum" &&
+                substr != "struct" && substr != "loop" &&
+                substr != "for" && substr != "while" &&
+                substr != "whilenot" && substr != "until" &&
+                text.Substring(0, 2) != "if" && substr != "else" &&
+                substr != "elseif" && substr != "call" &&
+                substr != "set" && substr != "return" &&
+                substr != "exitwhen" && substr != "local" && substr != "nothing" &&
+                CountSymbolsInText("(", text) == 1 && CountSymbolsInText(")", text) == 1 &&
+                text.IndexOf(';') == -1)
+                //THEN
+                return true;
+        }
+        return false;
+    }
+
+    public static bool IsVariable(string text)
+    {
+        int sIndex = text.IndexOf(' ');
+        int bIndex = text.IndexOf('(');
+        string substr = "";
+        if (sIndex > 0)
+        {
+            substr = text.Substring(0, sIndex);
+            if (Analyzer.CountSymbolsInText("{", text) == 0 &&
+                Analyzer.CountSymbolsInText("}", text) == 0 &&
+                substr != "define" && substr != "local" &&
+                substr != "enum" && substr != "struct" &&
+                substr != "loop" && substr != "for" &&
+                substr != "while" && substr != "whilenot" &&
+                substr != "until" && text.Substring(0, 2) != "if" &&
+                substr != "else" && substr != "elseif" &&
+                substr != "call" && substr != "set" &&
+                substr != "return" && substr != "exitwhen" &&
+                substr != "flush" && substr != "delete")
+                //THEN
+                return true;
+        }
+        return false;
     }
 }

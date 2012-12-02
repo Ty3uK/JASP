@@ -203,7 +203,7 @@ public class Analyzer
         int sIndex = text.IndexOf(' ');
         int bIndex = text.IndexOf('(');
         string substr = "";
-        if (text.IndexOf('=') == -1 && sIndex > -1 && sIndex < bIndex)
+        if (text.IndexOf('=') == -1 && sIndex > -1)
         {
             substr = text.Substring(0, sIndex);
             if (substr != "define" && substr != "callback" &&
@@ -215,11 +215,14 @@ public class Analyzer
                 text.Substring(0, 2) != "if" && substr != "else" &&
                 substr != "elseif" && substr != "call" &&
                 substr != "set" && substr != "return" &&
-                substr != "exitwhen" && substr != "local" && substr != "nothing" &&
-                CountSymbolsInText("(", text) == 1 && CountSymbolsInText(")", text) == 1 &&
+                substr != "exitwhen" && substr != "local" &&
                 text.IndexOf(';') == -1)
                 //THEN
-                return true;
+                if ((bIndex > -1 && sIndex < bIndex &&
+                    CountSymbolsInText("(", text) == 1 && CountSymbolsInText(")", text) == 1)
+                    ||
+                    (bIndex == -1 && text.IndexOf(" returns ") > -1))
+                    return true;
         }
         return false;
     }

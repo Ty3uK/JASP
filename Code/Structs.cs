@@ -10,8 +10,9 @@ public class Struct
 
     public Struct(string[] text, int start, int end)
     {
+        bool isOperator = false;
         string[] split;
-        string temp = "", type = "", tmp = "";
+        string temp = "", type = "", tmp = "", name = "";
         int index = 0;
         int fLines = 0, vLines = 0;
         int[] funcs = new int[text.Length];
@@ -28,14 +29,73 @@ public class Struct
         }
         for (int i = 0; i < fLines; i++)
         {
-            temp = Format.ReplaceSpacesAndNewLines(text[funcs[i]]).Replace("private ", "").Replace("public ", "").Replace("static ", "");
-            temp = temp.Substring(0, temp.IndexOf('('));
-            index = temp.IndexOf(' ');
-            Functions.Add(temp.Substring(0, index), temp.Substring(index + 1));
+            temp = Format.ReplaceSpacesAndNewLines(text[funcs[i]]);
+            while ((index = temp.IndexOf(' ')) != -1)
+            {
+                tmp = temp.Substring(0, index);
+                if (tmp == "private" || tmp == "public" ||
+                    tmp == "static"  || tmp == "stub"   ||
+                    tmp == "constant")
+                {
+                    //THEN
+                    temp = temp.Substring(index + 1);
+                }
+                else
+                    break;
+            }
+            if ((index = temp.IndexOf('(')) > -1)
+            {
+                temp = temp.Substring(0, index);
+                isOperator = temp.IndexOf(" operator ") > -1;
+                if (isOperator)
+                    temp = temp.Replace("operator ", String.Empty);
+                index = temp.IndexOf(' ');
+                name = temp.Substring(index + 1);
+                type = temp.Substring(0, index);
+                if (isOperator)
+                {
+                    if (type != "nothing" && type != "void")
+                        if (!Variables.ContainsKey(name))
+                            Variables.Add(name, type);
+                }
+                else
+                {
+                    if (!Functions.ContainsKey(name))
+                        Functions.Add(name, type);
+                }
+            }
+            else
+            {
+                tmp = temp.Replace("method ", String.Empty);
+                isOperator = tmp.Substring(0, tmp.IndexOf(' ')) == "operator";
+                if (isOperator)
+                    tmp = tmp.Replace("operator ", String.Empty);
+                name = tmp.Substring(0, tmp.IndexOf(' '));
+                type = tmp.Substring(tmp.LastIndexOf(' ') + 1);
+                if (isOperator)
+                {
+                    if (type != "nothing" && type != "void")
+                        if (!Variables.ContainsKey(name))
+                            Variables.Add(name, type);
+                } else {
+                    if (!Functions.ContainsKey(name))
+                        Functions.Add(name, type);
+                }
+            }
         }
         for (int i = 0; i < vLines; i++)
         {
-            temp = Format.ReplaceSpacesAndNewLines(text[vars[i]]).Replace("private ", "").Replace("public ", "").Replace("static ", "");
+            temp = Format.ReplaceSpacesAndNewLines(text[vars[i]]);
+            while ((index = temp.IndexOf(' ')) != -1) {
+                tmp = temp.Substring(0, index);
+                if (tmp == "private" || tmp == "public"   ||
+                    tmp == "static"  || tmp == "readonly" ||
+                    tmp == "constant")
+                    //THEN
+                    temp = temp.Substring(index + 1);
+                else
+                    break;
+            }
             if (temp.IndexOf(',') > 0)
             {
                 split = temp.Split(',');

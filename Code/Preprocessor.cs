@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -85,7 +86,7 @@ class Preprocessor
         for (int i = start; i < end; i++)
         {
             string temp = input[i].Trim();
-            string prefix = "";
+            string prefix = string.Empty;
             string[] split;
             int index = temp.IndexOf(' ');
             if (index != -1)
@@ -97,6 +98,7 @@ class Preprocessor
                     prefix != "for" && prefix != "while" && prefix != "whilenot" && prefix != "function" &&
                     prefix != "method" && prefix != "struct" && prefix != "define" && prefix != "enum")
                 {
+                    //MessageBox.Show(temp);
                     split = temp.Split('\n');
                     foreach (string tmp in split)
                     {
@@ -301,7 +303,14 @@ class Preprocessor
 
     private static void ParseFunctions(string[] text, int start, int end)
     {
-        for (short i = 0; i < text.Length; i++)
+        string temp = string.Empty;
+        for (int i = start; i <= end; i++)
+        {
+            //temp = Format.TrimModifiers(text[i]);
+            //if (Analyzer.IsFunction(temp))
+                //MessageBox.Show(temp);
+        }
+        /*for (short i = 0; i < text.Length; i++)
         {
             string temp = text[i].Replace("private", "").Replace("static", "").Replace("public", "").Trim();
             if (temp.Length >= 9 && temp.Substring(0, 9) == "function ")
@@ -341,13 +350,13 @@ class Preprocessor
                 start = end;
             }
             start++;
-        } while (start < text.Length);
+        } while (start < text.Length);*/
     }
 
     public static void ParseJaspBlock(string[] text)
     {
         int start = 0, end = 0;
-        string temp = "";
+        string temp = string.Empty;
         List<Match> strings = new List<Match>();
         for (int i = 0; i < text.Length; i++)
         {
@@ -364,7 +373,7 @@ class Preprocessor
                 ParseSingleLine(text, start, end);
                 ParseNew(text, start, end);
                 ParseFlush(text, start, end);
-                ParseFunctions(text, start, end);
+                //ParseFunctions(text, start, end);
                 ParseStrings(text, strings, start, end, 2);
             }
         }

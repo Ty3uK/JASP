@@ -1,34 +1,62 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 public class Analyzer
 {
     public static string[] globals;
-    public static List<Struct> Structs = new List<Struct>();
 
     public static bool HaveString(List<string> input, string source)
     {
         return input.Exists(new System.Predicate<string>(x => x == source));
     }
 
-    public static int FindBraces(string[] text, int start)
+    public static int GetEndOfBlock(string[] text, int start, string blockStart, string bockEnd)
     {
         int OB = 0, CB = 0, end = 0;
         for (int i = start; i < text.Length; i++)
         {
-            if (text[i].IndexOf("{") != -1) OB++;
-            if (text[i].IndexOf("}") != -1)
-            {
-                CB++;
-                if (CB == OB) { end = i; break; };
-
-            }
+            if (text[i].IndexOf(blockStart) > -1)
+                OB++;
+            if (text[i].IndexOf(bockEnd) > -1)
+                if (++CB == OB) {
+                    end = i;
+                    break;
+                }
         }
         return end;
     }
 
-    public static int CountSymbolsInText(string symbol, string text)
+    public static int GetEndOfBlock(string[] text, int start, char blockStart, char bockEnd)
+    {
+        int OB = 0, CB = 0, end = 0;
+        for (int i = start; i < text.Length; i++)
+        {
+            if (text[i].IndexOf(blockStart) > -1)
+                OB++;
+            if (text[i].IndexOf(bockEnd) > -1)
+                if (++CB == OB)
+                {
+                    end = i;
+                    break;
+                }
+        }
+        return end;
+    }
+
+    public static int CountSymbolsInText(string symbols, string text)
+    {
+        int count = 0, m;
+        while ((m = text.IndexOf(symbols)) != -1)
+        {
+            count++;
+            text = text.Substring(m + 1);
+        }
+        return count;
+    }
+
+    public static int CountSymbolsInText(char symbol, string text)
     {
         int count = 0, m;
         while ((m = text.IndexOf(symbol)) != -1)
@@ -127,75 +155,86 @@ public class Analyzer
 
     public static void FindUserFunctions(string[] text)
     {
-        Struct tempS;
-        string name = "", type = "";
-        for (int i = 0; i < text.Length; i++)
+        string temp = string.Empty, type = string.Empty;
+        int index = -1;
+        for(int i = 0; i < text.Length; i++)
         {
-            string temp = text[i].Replace("private ", "").Replace("static ", "").Replace("public ", "").Replace("operator ", "").Trim();
-            if (temp.Length >= 9 && temp.Substring(0, 9) == "function " && temp.IndexOf("takes") != -1 && temp.IndexOf("returns") != -1)
+            temp = Format.TrimModifiers(text[i]);
+            if ((index = temp.IndexOf(' ')) > 0 && temp.Substring(0, temp.IndexOf(' ')) == "struct")
             {
-                temp = temp.Substring(9, temp.Length - 9);
-                type = temp.Substring(temp.IndexOf("returns") + 8, temp.Length - temp.IndexOf("returns") - 8);
-                if (type != "nothing" && type != "void")
-                {
-                    name = temp.Substring(0, temp.IndexOf(' '));
-                    JData.Add(name, type);
-                    //Types.AddFunc(name, type);
-                }
-            }
-            else if (temp.Length >= 7 && temp.Substring(0, 7) == "method " && temp.IndexOf("takes") != -1 && temp.IndexOf("returns") != -1)
-            {
-                temp = temp.Substring(7, temp.Length - 7);
-                type = temp.Substring(temp.IndexOf("returns") + 8, temp.Length - temp.IndexOf("returns") - 8);
-                if (type != "nothing" && type != "void")
-                {
-                    name = temp.Substring(0, temp.IndexOf(' ')).Trim();
-                    JData.Add(name, type);
-                    //Types.AddFunc(name, type);
-                }
-            }
-            else if (temp.Length >= 7 && temp.Substring(0, 7) == "struct ") 
-            {
-                int close = i + 1;
-                if (temp[temp.Length - 1] == '{' || text[i + 1].Trim() == "{")
-                    close = Analyzer.FindBraces(text, i);
+                index = i;
+                if (temp[temp.Length - 1] == '{')
+                    i = Analyzer.GetEndOfBlock(text, i, '{', '}');
                 else
-                    for (int j = i; j < text.Length; j++)
-                        if (text[j].Trim() == "endstruct")
-                        {
-                            close = j - 1;
-                            break;
-                        }
-                tempS = new Struct(text, i, close);
-                Structs.Add(tempS);
+                    i = Analyzer.GetEndOfBlock(text, i, "struct", "endstruct");
+                JStruct.mStack.Add(new JStruct(text, index, i));
             }
-            else
-            {
-                int index = temp.IndexOf(' ');
-                int bIndex = temp.IndexOf('(');
-                if (index != -1 && index < bIndex && temp.Substring(0, index) != "define" &&
-                    temp.Substring(0, index) != "callback" && temp.Substring(0, index) != "lambda" &&
-                    temp.Substring(0, index) != "library" && temp.Substring(0, index) != "scope" &&
-                    temp.Substring(0, index) != "enum" && temp.Substring(0, index) != "struct" &&
-                    temp.Substring(0, index) != "loop" && temp.Substring(0, index) != "for" &&
-                    temp.Substring(0, index) != "while" && temp.Substring(0, index) != "whilenot" &&
-                    temp.Substring(0, index) != "until" && temp.Substring(0, 2) != "if" &&
-                    temp.Substring(0, index) != "else" && temp.Substring(0, index) != "elseif" &&
-                    temp.Substring(0, index) != "call" && temp.Substring(0, index) != "set" &&
-                    temp.Substring(0, index) != "return" && temp.Substring(0, index) != "exitwhen" &&
-                    temp.Substring(0, index) != "local" && temp.Substring(0, index) != "void" &&
-                    temp.Substring(0, index) != "nothing" && temp.IndexOf('=') == -1 &&
-                    Analyzer.CountSymbolsInText("(", temp) == 1 && Analyzer.CountSymbolsInText(")", temp) == 1 &&
-                    temp.IndexOf(';') == -1)
+            if (Analyzer.IsFunction(temp))
+                if ((index = temp.IndexOf('(')) > 0)
                 {
-                    type = temp.Substring(0, index).Trim();
-                    temp = temp.Replace(type, "");
-                    JData.Add(temp.Substring(0, temp.IndexOf('(')).Trim(), type);
-                    //Types.AddFunc(temp.Substring(0, temp.IndexOf('(')).Trim(), type);
+                    temp = temp.Substring(0, index);
+                    index = temp.IndexOf(' ');
+                    type = temp.Substring(0, index);
+                    if (type != "nothing" && type != "void")
+                        JData.Add(temp.Substring(index + 1), type);
                 }
-            }
-
+                else
+                {
+                    type = temp.Substring(temp.LastIndexOf(' ') + 1);
+                    if (type != "nothing" && type != "void")
+                        JData.Add(temp.Substring(9, temp.IndexOf(' ', 10) - 9), type);
+                }
         }
+        //MessageBox.Show(Struct.Stack[0].name);
+    }
+
+    private static string[] Keywords = new string[] {
+        //For variables with '='
+        "#define",
+        "define",
+        "enddefine",
+        //For variables without '='
+        "callback",
+        "enum",
+        "endenum",
+        "library",
+        "endlibrary",
+        "library_once",
+        "scope",
+        "endscope",
+        "struct",
+        "endstruct",
+        "type",
+        "keyword",
+        "delegate",
+        "loop",
+        "exitwhen",
+        "endloop",
+        "for",
+        "endfor",
+        "while",
+        "endwhile",
+        "whilenot",
+        "endwhilenot",
+        "if",
+        "else",
+        "elseif",
+        "call",
+        "set",
+        "return",
+        "flush",
+        "delete",
+        //For functions
+        "local",
+    };
+
+    private static bool ContainsKeyword(string text, int max) {
+        if (max > 34)
+            max = 34;
+        for (byte i = 0; i < max; i++)
+            if (text == Keywords[i])
+                return true;
+        return false;
     }
 
     public static bool IsFunction(string text)
@@ -203,20 +242,12 @@ public class Analyzer
         int sIndex = text.IndexOf(' ');
         int bIndex = text.IndexOf('(');
         string substr = "";
+        text = Format.ReplaceSpacesAndNewLines(text);
         if (text.IndexOf('=') == -1 && sIndex > -1)
         {
-            substr = text.Substring(0, sIndex);
-            if (substr != "define" && substr != "callback" &&
-                substr != "lambda" && substr != "library" &&
-                substr != "scope" && substr != "enum" &&
-                substr != "struct" && substr != "loop" &&
-                substr != "for" && substr != "while" &&
-                substr != "whilenot" && substr != "until" &&
-                text.Substring(0, 2) != "if" && substr != "else" &&
-                substr != "elseif" && substr != "call" &&
-                substr != "set" && substr != "return" &&
-                substr != "exitwhen" && substr != "local" &&
-                text.IndexOf(';') == -1)
+            substr = text.Substring(0, sIndex).Trim();
+            if (substr.Length > 2 && text.IndexOf(';') == -1 &&
+                !ContainsKeyword(substr, 34))
                 //THEN
                 if ((bIndex > -1 && sIndex < bIndex &&
                     CountSymbolsInText("(", text) == 1 && CountSymbolsInText(")", text) == 1)
@@ -231,24 +262,80 @@ public class Analyzer
     {
         int sIndex = text.IndexOf(' ');
         int bIndex = text.IndexOf('(');
-        string substr = "";
+        int eIndex = text.IndexOf('=');
+        string substr = string.Empty;
         if (sIndex > 0)
         {
-            substr = text.Substring(0, sIndex);
-            if (Analyzer.CountSymbolsInText("{", text) == 0 &&
-                Analyzer.CountSymbolsInText("}", text) == 0 &&
-                substr != "define" && substr != "local" &&
-                substr != "enum" && substr != "struct" &&
-                substr != "loop" && substr != "for" &&
-                substr != "while" && substr != "whilenot" &&
-                substr != "until" && text.Substring(0, 2) != "if" &&
-                substr != "else" && substr != "elseif" &&
-                substr != "call" && substr != "set" &&
-                substr != "return" && substr != "exitwhen" &&
-                substr != "flush" && substr != "delete")
+            substr = Format.ReplaceSpacesAndNewLines(text.Substring(0, sIndex));
+            if (((eIndex > 0 && eIndex < bIndex && !ContainsKeyword(substr, 3)) // If we have '=' and '('
+                    ||
+                (eIndex == -1 && bIndex == -1 && !ContainsKeyword(substr, 33))) // Or if we haven't '=' and, of course, '('
+                &&
+                Analyzer.CountSymbolsInText("{", text) == 0 &&
+                Analyzer.CountSymbolsInText("}", text) == 0)
                 //THEN
                 return true;
         }
         return false;
+    }
+
+    /// <summary>
+    ///     Ищет ключевые слова в строке, определяя что она из мебя представляет - переменную или функцию.
+    /// </summary>
+    /// <param name="text">Строка, в которой происходит поиск.</param>
+    /// <returns>Числовой параметр. 0 - переменная, 1 и более - функция и ее окончание</returns>
+    public static int WhatKindOfStringWeHave(string input, string[] text, int start)
+    {
+        string substr = string.Empty;
+        int sIndex = -1, bIndex = -1, abIndex = -1, eIndex = -1; //Indexes of SPACE, OPEN BRACE, OPEN  and EQUAL chars
+
+        input = Format.TrimModifiers(Format.ReplaceSpaces(input));
+        for (int i = 0; i < input.Length; i++)
+        {
+            if (sIndex == -1 && (input[i] == ' ' || input[i] == '\t'))
+                sIndex = i;
+            else if (bIndex == -1 && input[i] == '(')
+                bIndex = i;
+            else if (abIndex == -1 && input[i] == '{')
+                abIndex = i;
+            else if (eIndex == -1 && input[i] == '=')
+                eIndex = i;
+        }
+
+        if (sIndex > 0)
+        {
+            substr = input.Substring(0, sIndex).Trim(); //Get first lexem of input string
+            //MessageBox.Show(input + '\n' + substr + '\n' + substr.Length.ToString());
+            if (eIndex == -1)
+            {
+                //If we have cJASS-styled function
+                if (bIndex > 0 && sIndex < bIndex && !ContainsKeyword(substr, 34))
+                    return GetEndOfBlock(text, start, '{', '}');
+                //If we have classic JASS2-styled function
+                else if (bIndex == -1 && input.IndexOf(" returns ") > 0)
+                {
+                    //Find end of detected method or function
+                    for (int i = start; i < text.Length; i++)
+                        if (text[i].Trim() == "end" + substr)
+                            return i;
+                }
+                //Time to detect some kind of variables! :)
+                else if (bIndex == -1 && !ContainsKeyword(substr, 33) &&
+                          CountSymbolsInText('{', input) == 0 &&
+                          CountSymbolsInText('}', input) == 0)
+                    //THEN
+                    return 0;
+            }
+            //Detection of another variables
+            else if ((eIndex > 0 && (bIndex == -1 || eIndex < bIndex)) &&
+                          !ContainsKeyword(substr, 3) &&
+                          CountSymbolsInText('{', input) == 0 &&
+                          CountSymbolsInText('}', input) == 0)
+                //THEN
+                return 0;
+            else if (bIndex > 0 && eIndex > abIndex && !ContainsKeyword(substr, 34))
+                return GetEndOfBlock(text, start, '{', '}');
+        }
+        return -1;
     }
 }

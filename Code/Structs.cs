@@ -1,18 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
+﻿using System.Collections.Generic;
 
-public class Struct
+public class JStruct
 {
+    /// <summary>
+    ///     Название структуры.
+    /// </summary>
     public readonly string name;
-    public readonly Dictionary<string, string> Functions = new Dictionary<string, string>();
-    public readonly Dictionary<string, string> Variables = new Dictionary<string, string>();
+    private Dictionary<string, string> Functions = new Dictionary<string, string>();
+    private Dictionary<string, string> Variables = new Dictionary<string, string>();
+    /// <summary>
+    ///     Стек структур.
+    /// </summary>
+    public static readonly List<JStruct> mStack = new List<JStruct>();
 
-    public Struct(string[] text, int start, int end)
+    /// <summary>
+    ///     Возвращает тип функции, если она была определена при создании объекта.
+    /// </summary>
+    /// <param name="fName">Название функции</param>
+    /// <returns>Тип функции</returns>
+    public string GetFunctionType(string fName)
+    {
+        if (Functions.ContainsKey(fName))
+            return Functions[fName];
+        return string.Empty;
+    }
+
+    /// <summary>
+    ///     Возвращает тип переменной, если она была определена при создании объекта.
+    /// </summary>
+    /// <param name="vName">Имя переменной</param>
+    /// <returns>Тип переменной</returns>
+    public string GetVariableType(string vName)
+    {
+        if (Variables.ContainsKey(vName))
+            return Variables[vName];
+        return string.Empty;
+    }
+
+    /// <summary>
+    ///     Создает экземпляр структуры, содержащей все методы, функции и переменные.
+    /// </summary>
+    /// <param name="text">Массив, содержащий скрипт.</param>
+    /// <param name="start">Индекс начала.</param>
+    /// <param name="end">Индекс конца.</param>
+    public JStruct(string[] text, int start, int end)
     {
         bool isOperator = false;
         string[] split;
-        string temp = "", type = "", tmp = "", name = "";
+        string temp = string.Empty, type = string.Empty, tmp = string.Empty, name = string.Empty;
         int index = 0;
         int fLines = 0, vLines = 0;
         int[] funcs = new int[text.Length];
@@ -21,34 +56,25 @@ public class Struct
         {
             temp = text[i].Trim();
             if (i == start)
-                name = temp.Substring(7).Replace("{", "");
-            if (Analyzer.IsFunction(temp))
+                name = temp.Substring(7).Replace('{', '\0');
+            if ((index = Analyzer.WhatKindOfStringWeHave(temp, text, i)) > 0)
+            {
                 funcs[fLines++] = i;
-            else if (Analyzer.IsVariable(temp))
+                if (index > i)
+                    i = index;
+            }
+            else if (index == 0)
                 vars[vLines++] = i;
         }
         for (int i = 0; i < fLines; i++)
         {
-            temp = Format.ReplaceSpacesAndNewLines(text[funcs[i]]);
-            while ((index = temp.IndexOf(' ')) != -1)
-            {
-                tmp = temp.Substring(0, index);
-                if (tmp == "private" || tmp == "public" ||
-                    tmp == "static"  || tmp == "stub"   ||
-                    tmp == "constant")
-                {
-                    //THEN
-                    temp = temp.Substring(index + 1);
-                }
-                else
-                    break;
-            }
+            temp = Format.TrimModifiers(Format.ReplaceSpacesAndNewLines(text[funcs[i]]));
             if ((index = temp.IndexOf('(')) > -1)
             {
                 temp = temp.Substring(0, index);
                 isOperator = temp.IndexOf(" operator ") > -1;
                 if (isOperator)
-                    temp = temp.Replace("operator ", String.Empty);
+                    temp = temp.Replace("operator ", string.Empty);
                 index = temp.IndexOf(' ');
                 name = temp.Substring(index + 1);
                 type = temp.Substring(0, index);
@@ -66,10 +92,10 @@ public class Struct
             }
             else
             {
-                tmp = temp.Replace("method ", String.Empty);
+                tmp = temp.Replace("method ", string.Empty);
                 isOperator = tmp.Substring(0, tmp.IndexOf(' ')) == "operator";
                 if (isOperator)
-                    tmp = tmp.Replace("operator ", String.Empty);
+                    tmp = tmp.Replace("operator ", string.Empty);
                 name = tmp.Substring(0, tmp.IndexOf(' '));
                 type = tmp.Substring(tmp.LastIndexOf(' ') + 1);
                 if (isOperator)
@@ -85,21 +111,12 @@ public class Struct
         }
         for (int i = 0; i < vLines; i++)
         {
-            temp = Format.ReplaceSpacesAndNewLines(text[vars[i]]);
-            while ((index = temp.IndexOf(' ')) != -1) {
-                tmp = temp.Substring(0, index);
-                if (tmp == "private" || tmp == "public"   ||
-                    tmp == "static"  || tmp == "readonly" ||
-                    tmp == "constant")
-                    //THEN
-                    temp = temp.Substring(index + 1);
-                else
-                    break;
-            }
+            temp = Format.TrimModifiers(Format.ReplaceSpacesAndNewLines(text[vars[i]]));
             if (temp.IndexOf(',') > 0)
             {
                 split = temp.Split(',');
-                type = temp.Substring(0, temp.IndexOf(' '));
+                if ((index = temp.IndexOf(' ')) > 0)
+                    type = temp.Substring(0, index);
                 for (int j = 0; j < split.Length; j++)
                 {
                     if (j > 0)

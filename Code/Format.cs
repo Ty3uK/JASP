@@ -1,6 +1,5 @@
-﻿using System.Text;
+﻿using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 
 class Format
 {
@@ -35,10 +34,11 @@ class Format
 
     public static string GetTextBetweenIndexes(string[] input, int a, int b)
     {
-        string output = "";
+        string output = string.Empty;
         for (int i = a + 1; i < b; i++)
         {
-            if (input[i].Trim().Length > 0) output += input[i] + '\n';
+            if (input[i].Trim().Length > 0)
+                output += input[i] + '\n';
         }
         return output;
     }
@@ -46,8 +46,8 @@ class Format
     public static string ReplaceSpaces(string text)
     {
         bool space = true;
-        string s = "";
-        for (short i = 0; i < text.Length; i++)
+        string s = string.Empty;
+        for (ushort i = 0; i < text.Length; i++)
         {
             if (text[i] == ' ' || text[i] == '\t')
             {
@@ -64,9 +64,7 @@ class Format
 
     public static string ReplaceSpacesAndNewLines(string text)
     {
-        string s = ReplaceSpaces(text);
-        s = ReplaceEndOfLine(s);
-        return s;
+        return ReplaceEndOfLine(ReplaceSpaces(text));
     }
 
     public static string[] SplitArray(string[] input)
@@ -99,5 +97,24 @@ class Format
 				result += c;
 		return result;
 	}
+
+    public static string TrimModifiers(string input)
+    {
+        string tmp = string.Empty;
+        int index = -1;
+        input = input.Trim();
+        while ((index = input.IndexOf(' ')) != -1)
+        {
+            tmp = input.Substring(0, index);
+            if (tmp == "private" || tmp == "public" ||
+                tmp == "static" || tmp == "stub" ||
+                tmp == "constant" || tmp == "readonly")
+                //THEN
+                input = input.Substring(index + 1);
+            else
+                break;
+        }
+        return input;
+    }
 
 }

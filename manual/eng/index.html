@@ -1,0 +1,370 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="Description" content="JASP (Just Another Script Preprocessor) - небольшой препроцессор для языка Jass 2 компании Blizzard" />
+		<link rel="shortcut icon" href="http://w3jp.ru/favicon.ico" type="image/x-icon" />
+		<link rel="icon" href="http://w3jp.ru/favicon.ico" type="image/x-icon" />
+		<title>JASP - Руководство пользователя</title>
+		<link type="text/css" rel="StyleSheet" href="http://w3jp.ru/style.css" />
+		<style type="text/css">
+			pre
+			{
+				font-size: 15px !important;
+				border: 1px #777777 inset;
+				padding: 5px;
+			}
+			h3 {text-align: center;}
+			.noline {text-decoration: none;}
+			.menu {padding: 23px 90px 0px 80px;}
+		</style>
+	</head>
+
+	<body>
+	
+		<div id="page">
+		
+			<div id="header">
+				<div id="lang">
+					<a href="http://w3jp.ru/"><img src="/images/eng.png" /></a>
+					<a href="http://w3jp.ru/rus/"><img src="/images/rus.png" /></a>
+				</div>
+				<h2><a href="http://w3jp.ru">JASP - Just Another Script Preprocessor</a></h2>
+				<h4><b>Current version:</b> <i>v0.2beta</i></h4>
+				<div class="menu"><a href="http://w3jp.ru/">Main</a></div>
+				<div class="menu"><a href="https://sourceforge.net/projects/wc3jasp/files/">Download</a></div>
+				<div class="menu"><a href="http://w3jp.ru/manual/eng">Manual</a></div>
+			</div>
+			
+			<div id="main" style="text-align: none;">
+	
+	<center><h4>User Manual</h4></center>
+		<p>
+		<b>JASP</b> is the new preprocessor that extends <b>Jass 2</b> language of Blizzard with a few comfortable additions. <b>Jass 2</b> syntax is very multiworded; there already is <b>cJass preprocessor by ADOLF</b> that makes possible the writing of C-like code, that will grealtly shorten and making easier the process of coding. I'm not trying to invent a bicycle: yes, in <b>cJass</b> there are many cool additions but in general, as many men said, it can be simplier. New versions can be downloaded at <a href="http://code.google.com/p/jasp">code.google.com</a> and <a href="https://sourceforge.net/projects/jasp">sourceforge.net</a>.</p><br>
+		<br>
+		<h4>Table of contents</h4>
+		<ul>
+			<li><a href="#pt00" class="noline">How to install</a></li>
+			<li><a href="#pt01" class="noline">Single local variable declaration</a></li>
+			<li><a href="#pt02" class="noline">Multiple local variable declaration</a></li>
+			<li><a href="#pt03" class="noline">Global variable declaration</a></li>
+			<li><a href="#pt04" class="noline">Multiple global variable declaration</a></li>
+			<li><a href="#pt06" class="noline">Object destruction</a></li>
+			<li><a href="#pt07" class="noline">Nulling variables</a></li>
+			<li><a href="#pt08" class="noline">Loops 'repeat until'</a></li>
+			<li><a href="#pt09" class="noline">Untypified variables</a></li>
+			<li><a href="#thx" class="noline">Credits</a></li>
+		</ul>
+		<br>
+		<p></p><h3><a name="pt00"></a>How to install</h3>
+		Download and unpack the <b>jassnewgenpack5d.exe</b> archive. Then download the most fresh version of preprocessor and move it into JASP folder. That's all.<p></p>
+		<br>
+		<p></p><h3><a name="pt01"></a>Single local variable declaration</h3>
+		Local variable declaration on classic <b>Jass 2</b> goes like that:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t = <span style="color: #800080;">CreateTimer</span>()
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		In <b>cJass</b> this became simplier:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #0055AA; font-weight: bold;">void</span> someFunc()
+{
+	<span style="color: #0055AA; font-weight: bold;">timer</span> t = <span style="color: #800080;">CreateTimer</span>(); <span style="color: #008200; font-style: italic;">//without cj_typesEx.j library</span>
+}
+
+<span style="color: #0055AA; font-weight: bold;">void</span> someFunc()
+{
+	<span style="color: #0055AA; font-weight: bold;">timer</span> t = <span style="color: #000000; font-weight: bold;">new</span> <span style="color: #0055AA; font-weight: bold;">timer</span>; <span style="color: #008200; font-style: italic;">//with cj_typesEx.j library</span>
+}</pre>
+		<b>JASP</b> proposes even more simple variant of declaration:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">new</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		After parsing this will become:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t = <span style="color: #800080;">CreateTimer</span>()
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+	<h4>Warning!</h4> The declaration of variables like that is supported only for this types:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #0055AA; font-weight: bold;">timer</span>
+<span style="color: #0055AA; font-weight: bold;">group</span>
+<span style="color: #0055AA; font-weight: bold;">force</span>
+<span style="color: #0055AA; font-weight: bold;">region</span>
+<span style="color: #0055AA; font-weight: bold;">trigger</span>
+<span style="color: #0055AA; font-weight: bold;">dialog</span>
+<span style="color: #0055AA; font-weight: bold;">leaderboard</span>
+<span style="color: #0055AA; font-weight: bold;">multiboard</span>
+<span style="color: #0055AA; font-weight: bold;">quest</span>
+<span style="color: #0055AA; font-weight: bold;">texttag</span>
+<span style="color: #0055AA; font-weight: bold;">camerasetup</span>
+<span style="color: #0055AA; font-weight: bold;">hashtable</span>
+</pre><p></p>
+		<p></p><h3><a name="pt02"></a>Multiple local variable declaration</h3>
+		<b>JASP</b> proposes to you the multiple local variable declaration. For example, this code:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">new</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t, <span style="color: #0055AA; font-weight: bold;">group</span> g, <span style="color: #0055AA; font-weight: bold;">force</span> f, <span style="color: #0055AA; font-weight: bold;">hashtable</span> h
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		will transform to this:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t = <span style="color: #800080;">CreateTimer</span>()
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">group</span> g = <span style="color: #800080;">CreateGroup</span>()
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">force</span> f = <span style="color: #800080;">CreateForce</span>()
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		But the declaration of local variables of the same type must be like that:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">new</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t, <span style="color: #0055AA; font-weight: bold;">timer</span> f, <span style="color: #0055AA; font-weight: bold;">timer</span> c
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre><p></p>
+		<p></p><h3><a name="pt03"></a>Global variable declaration</h3>
+		In <b>vJass</b> global variable declaration was possible only in the separate block:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">globals</span>
+	<span style="color: #0055AA; font-weight: bold;">hashtable</span> hash = <span style="color: #800080;">InitHashtable</span>()
+<span style="color: #000000; font-weight: bold;">endglobals</span></pre>
+		<b>JASP</b> proposes the single global variable declaration <b>directly in function code</b>. For example, the main block of global variables and our function:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">globals</span>
+	<span style="color: #008200; font-style: italic;">//WE globals</span>
+<span style="color: #000000; font-weight: bold;">endglobals</span>
+
+<span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">global</span> <span style="color: #0055AA; font-weight: bold;">hashtable</span> hash = <span style="color: #800080;">InitHashtable</span>()
+<span style="color: #000000; font-weight: bold;">endfunction</span>
+</pre>
+		after parsing will become that:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">globals</span>
+	<span style="color: #008200; font-style: italic;">//WE globals</span>
+	<span style="color: #0055AA; font-weight: bold;">hashtable</span> hash = <span style="color: #800080;">InitHashtable</span>()
+<span style="color: #000000; font-weight: bold;">endglobals</span>
+
+<span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span>
+</pre>
+		Also there is possible global variable declaration with initialization of their type (as in local variables):
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">globals</span>
+	<span style="color: #008200; font-style: italic;">//WE globals</span>
+<span style="color: #000000; font-weight: bold;">endglobals</span>
+
+<span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">new</span> <span style="color: #000000; font-weight: bold;">global</span> <span style="color: #0055AA; font-weight: bold;">hashtable</span> hash
+<span style="color: #000000; font-weight: bold;">endfunction</span>
+</pre>
+		after parsing:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">globals</span>
+	<span style="color: #008200; font-style: italic;">//WE globals</span>
+	<span style="color: #0055AA; font-weight: bold;">hashtable</span> hash = <span style="color: #800080;">InitHashtable</span>()
+<span style="color: #000000; font-weight: bold;">endglobals</span>
+
+<span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span>
+</pre><p></p>
+		<p></p><h3><a name="pt04"></a>Multiple global variable declaration</h3>
+		With the help of <b>JASP</b> you can declare multiple global variables in the function code:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">globals</span>
+	<span style="color: #008200; font-style: italic;">//WE globals</span>
+<span style="color: #000000; font-weight: bold;">endglobals</span>
+
+<span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">new</span> <span style="color: #000000; font-weight: bold;">global</span> <span style="color: #0055AA; font-weight: bold;">hashtable</span> hash, <span style="color: #0055AA; font-weight: bold;">force</span> Team, <span style="color: #0055AA; font-weight: bold;">timer</span> Timer
+<span style="color: #000000; font-weight: bold;">endfunction</span>
+</pre>
+		after parsing becomes:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">globals</span>
+	<span style="color: #008200; font-style: italic;">//WE globals</span>
+	<span style="color: #0055AA; font-weight: bold;">hashtable</span> hash = <span style="color: #800080;">InitHashtable</span>()
+	<span style="color: #0055AA; font-weight: bold;">force</span> Team = <span style="color: #800080;">CreateForce</span>()
+	<span style="color: #0055AA; font-weight: bold;">timer</span> Timer = <span style="color: #800080;">CreateTimer</span>()
+<span style="color: #000000; font-weight: bold;">endglobals</span>
+
+<span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span>
+</pre><p></p>
+		<p></p><h3><a name="pt06"></a>Object destruction</h3>
+		JASP proposes the possibility of easy destruction of this types:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #0055AA; font-weight: bold;">timer</span>
+<span style="color: #0055AA; font-weight: bold;">group</span>
+<span style="color: #0055AA; font-weight: bold;">force</span>
+<span style="color: #0055AA; font-weight: bold;">boolexpr</span>
+<span style="color: #0055AA; font-weight: bold;">conditionfunc</span>
+<span style="color: #0055AA; font-weight: bold;">defeatcondition</span>
+<span style="color: #0055AA; font-weight: bold;">effect</span>
+<span style="color: #0055AA; font-weight: bold;">filterfunc</span>
+<span style="color: #0055AA; font-weight: bold;">fogmodifier</span>
+<span style="color: #0055AA; font-weight: bold;">image</span>
+<span style="color: #0055AA; font-weight: bold;">itempool</span>
+<span style="color: #0055AA; font-weight: bold;">leaderboard</span>
+<span style="color: #0055AA; font-weight: bold;">lightning</span>
+<span style="color: #0055AA; font-weight: bold;">multiboard</span>
+<span style="color: #0055AA; font-weight: bold;">quest</span>
+<span style="color: #0055AA; font-weight: bold;">texttag</span>
+<span style="color: #0055AA; font-weight: bold;">timerdialog</span>
+<span style="color: #0055AA; font-weight: bold;">trigger</span>
+<span style="color: #0055AA; font-weight: bold;">ubersplat</span>
+<span style="color: #0055AA; font-weight: bold;">unitpool</span>
+<span style="color: #0055AA; font-weight: bold;">dialog</span>
+<span style="color: #0055AA; font-weight: bold;">destructable</span>
+<span style="color: #0055AA; font-weight: bold;">item</span>
+<span style="color: #0055AA; font-weight: bold;">location</span>
+<span style="color: #0055AA; font-weight: bold;">rect</span>
+<span style="color: #0055AA; font-weight: bold;">region</span>
+<span style="color: #0055AA; font-weight: bold;">unit</span>
+<span style="color: #0055AA; font-weight: bold;">hashtable</span></pre>
+		To destroy the object, you must use the short expression free
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">new</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t
+	<span style="color: #008200; font-style: italic;">//Function code</span>
+	<span style="color: #000000; font-weight: bold;">free</span> t
+	<span style="color: #000000; font-weight: bold;">set</span> t = <span style="color: #0000AA;">null</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		After parsing this will become:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t = <span style="color: #800080;">CreateTimer</span>()
+	<span style="color: #008200; font-style: italic;">//Function code</span>
+	<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">DestroyTimer</span>(t)
+	<span style="color: #000000; font-weight: bold;">set</span> t = <span style="color: #0000AA;">null</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		Also you can destroy multiple types. So, this:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">new</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t, <span style="color: #0055AA; font-weight: bold;">group</span> g
+	<span style="color: #008200; font-style: italic;">//Function code</span>
+	<span style="color: #000000; font-weight: bold;">free</span> t, g
+	<span style="color: #000000; font-weight: bold;">set</span> t = <span style="color: #0000AA;">null</span>
+	<span style="color: #000000; font-weight: bold;">set</span> g = <span style="color: #0000AA;">null</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		Will be parsed to:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t = <span style="color: #800080;">CreateTimer</span>()
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">group</span> g = <span style="color: #800080;">CreateGroup</span>()
+	<span style="color: #008200; font-style: italic;">//Function code</span>
+	<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">DestroyTimer</span>(t)
+	<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">DestroyGroup</span>(g)
+	<span style="color: #000000; font-weight: bold;">set</span> t = <span style="color: #0000AA;">null</span>
+	<span style="color: #000000; font-weight: bold;">set</span> g = <span style="color: #0000AA;">null</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre><p></p>
+		<p></p><h3><a name="pt07"></a>Nulling variables</h3>
+		<b>cJass</b> allowed to null the potentially leaking things with <b>flush locals</b>. JASP gives more short variant:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">new</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t
+	<span style="color: #008200; font-style: italic;">//Function code</span>
+	<span style="color: #000000; font-weight: bold;">free</span> t
+	<span style="color: #000000; font-weight: bold;">flush</span> t
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		That will, as you can expect, be parsed to this:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t = <span style="color: #800080;">CreateTimer</span>()
+	<span style="color: #008200; font-style: italic;">//Function code</span>
+	<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">DestroyTimer</span>(t)
+	<span style="color: #000000; font-weight: bold;">set</span> t = <span style="color: #0000AA;">null</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		And, like the operatiors <b>new</b> 蠼b>free</b>, <b>flush</b> also supports multiple elements:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">new</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t, <span style="color: #0055AA; font-weight: bold;">group</span> g
+	<span style="color: #008200; font-style: italic;">//Function code</span>
+	<span style="color: #000000; font-weight: bold;">free</span> t, g
+	<span style="color: #000000; font-weight: bold;">flush</span> t, g
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		This will be parsed to:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">timer</span> t = <span style="color: #800080;">CreateTimer</span>()
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">group</span> g = <span style="color: #800080;">CreateGroup</span>()
+	<span style="color: #008200; font-style: italic;">//Function code</span>
+	<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">DestroyTimer</span>(t)
+	<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">DestroyGroup</span>(g)
+	<span style="color: #000000; font-weight: bold;">set</span> t = <span style="color: #0000AA;">null</span>
+	<span style="color: #000000; font-weight: bold;">set</span> g = <span style="color: #0000AA;">null</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre><p></p>
+		<p></p><h3><a name="pt08"></a>Loops 'repeat until'</h3>
+		<b>JASP</b> grants an ability to use loops <b>repeat until</b> that are executing until the condition is true:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">unit</span> target
+	<span style="color: #000000; font-weight: bold;">new</span> <span style="color: #0055AA; font-weight: bold;">group</span> g
+	<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">GroupEnumUnitsInRange</span>(g, 1024., 1024., 300., <span style="color: #0000AA;">null</span>)
+	<span style="color: #000000; font-weight: bold;">repeat</span>
+		<span style="color: #000000; font-weight: bold;">set</span> target = <span style="color: #800080;">FirstOfGroup</span>(g)
+		<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">KillUnit</span>(target)
+		<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">GroupRemoveUnit</span>(g, target)
+	<span style="color: #000000; font-weight: bold;">until</span> (target == <span style="color: #0000AA;">null</span>)
+	<span style="color: #000000; font-weight: bold;">free</span> g
+	<span style="color: #000000; font-weight: bold;">flush</span> g
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		This will be parsed to:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">unit</span> target;
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">group</span> g = <span style="color: #800080;">CreateGroup</span>()
+	<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">GroupEnumUnitsInRange</span>(g, 1024., 1024., 300., <span style="color: #0000AA;">null</span>)
+	<span style="color: #000000; font-weight: bold;">loop</span>
+		<span style="color: #000000; font-weight: bold;">set</span> target = <span style="color: #800080;">FirstOfGroup</span>(g)
+		<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">KillUnit</span>(target)
+		<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">GroupRemoveUnit</span>(g, target)
+	<span style="color: #000000; font-weight: bold;">exitwhen</span> (target == <span style="color: #0000AA;">null</span>)
+	<span style="color: #000000; font-weight: bold;">endloop</span>
+	<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">DestroyGroup</span>(g)
+	<span style="color: #000000; font-weight: bold;">set</span> g = <span style="color: #0000AA;">null</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre><p></p>
+		<p></p><h3><a name="pt09"></a>Untypified variables</h3>
+		Using <b>JASP</b> you can declare variables without typifying them - this parser will determine the type depending on variable's value. For example:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">var</span> i = 0
+	<span style="color: #000000; font-weight: bold;">var</span> b = <span style="color: #0000AA;">false</span>
+	<span style="color: #000000; font-weight: bold;">var</span> r = .15
+	<span style="color: #000000; font-weight: bold;">var</span> s = <span style="color: #0000AA; font-style: italic;">"test"</span>
+	<span style="color: #000000; font-weight: bold;">var</span> i2 = <span style="color: #000000; font-style: italic; font-weight: bold; text-decoration: underline;">'Amrf'</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		This will be parsed to this:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">integer</span> i = 0
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">boolean</span> b = <span style="color: #0000AA;">false</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">real</span> r = .15
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">string</span> s = <span style="color: #0000AA; font-style: italic;">"test"</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">integer</span> i2 = <span style="color: #000000; font-style: italic; font-weight: bold; text-decoration: underline;">'Amrf'</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		Parser can determine the default values of native constants and functions and analyze custom functions and methods (if you're using <b>vJass</b>):
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">var</span> caster = <span style="color: #800080;">GetTriggerUnit</span>()
+	<span style="color: #000000; font-weight: bold;">var</span> dummy = <span style="color: #800080;">CreateUnit</span>(...)
+	<span style="color: #000000; font-weight: bold;">var</span> state = <span style="color: #0000AA;">UNIT_STATE_LIFE</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		This will, as expected, be parsed to that:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">unit</span> caster = <span style="color: #800080;">GetTriggerUnit</span>()
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">unit</span> dummy = <span style="color: #800080;">CreateUnit</span>(...)
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">integer</span> state = <span style="color: #0000AA;">UNIT_STATE_LIFE</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre><br>
+		Also <b>JASP</b> grants an opportunity for user to declare the variable without any value but with the condition that its value will be somewhere in this function. Quite misunderstandable, so I'll give an example:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">var</span> target
+	<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">GroupEnumUnitsInRange</span>(temp, x, y, 300. <span style="color: #0000AA;">null</span>)
+	<span style="color: #000000; font-weight: bold;">repeat</span>
+		<span style="color: #000000; font-weight: bold;">set</span> target = <span style="color: #800080;">FirstOfGroup</span>(temp)
+		<span style="color: #008200; font-style: italic;">//Actions</span>
+		<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">GroupRemoveUnit</span>(temp, target)
+	<span style="color: #000000; font-weight: bold;">until</span> target == <span style="color: #0000AA;">null</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		This will, as expected, be parsed to that:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">local</span> <span style="color: #0055AA; font-weight: bold;">unit</span> target
+	<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">GroupEnumUnitsInRange</span>(temp, x, y, 300. <span style="color: #0000AA;">null</span>)
+	<span style="color: #000000; font-weight: bold;">loop</span>
+		<span style="color: #000000; font-weight: bold;">set</span> target = <span style="color: #800080;">FirstOfGroup</span>(temp)
+		<span style="color: #008200; font-style: italic;">//Actions</span>
+		<span style="color: #000000; font-weight: bold;">call</span> <span style="color: #800080;">GroupRemoveUnit</span>(temp, target)
+	<span style="color: #000000; font-weight: bold;">exitwhen</span> (target == <span style="color: #0000AA;">null</span>)
+	<span style="color: #000000; font-weight: bold;">endloop</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre><br>
+		Using <b>JASP</b> you can declare many variables with values, parser will convert them to the variables with the type needed (don't work with variables with thevalues equal to functions or methods). Example:
+<pre class="jass" style="background: none repeat scroll 0% 0% rgb(255, 255, 255);"><span style="color: #000000; font-weight: bold;">function</span> someFunc <span style="color: #000000; font-weight: bold;">takes</span> <span style="color: #0055AA; font-weight: bold;">nothing</span> <span style="color: #000000; font-weight: bold;">returns</span> <span style="color: #0055AA; font-weight: bold;">nothing</span>
+	<span style="color: #000000; font-weight: bold;">var</span> i = 0, r = .15, s = <span style="color: #0000AA; font-style: italic;">"test"</span>, b = <span style="color: #0000AA;">false</span> <span style="color: #008200; font-style: italic;">//Do this</span>
+	<span style="color: #000000; font-weight: bold;">var</span> e = <span style="color: #800080;">AddSpecialEffect</span>(...), u = <span style="color: #800080;">CreateUnit</span>(...) <span style="color: #008200; font-style: italic;">//Don't do this</span>
+<span style="color: #000000; font-weight: bold;">endfunction</span></pre>
+		If the value of variable will be <b>null</b> it will be typified as <b>handle</b>.
+		<p style="font-size: 20px"></p><h3><a name="thx"></a>Credits</h3>
+			<b>Simplar aka [DUOS] aka bowser499</b> - Taught me how to code in Jass, gave useful advices, translated this manual and kept with me in all the situations. If I say in one word, he is my native soul.<br>
+			<b>SirNikolas</b> - gave a huge amount of useful information and advices. Very good man and a friend of mine :3<br>
+			<b>Borland Company</b> - for the Borland Delphi 2005 that made the creation of <b>JASP</b> possible.<br>
+			<b>Shadow Flare</b> - For SFMPQ library.<p style="height: 10px !important;"/>
+			</div>
+			
+			<div id="footer" style="padding-top: 155px;">
+				<a href="mailto:max_karelov@inbox.ru" >Max Karelov aka Ty3uK &copy 2012</a><br />
+			</div>
+			
+		</div>
+		
+		<script type="text/javascript">google_ad_client = "ca-pub-8473743477118409";google_ad_slot = "4545849295";google_ad_width = 728;google_ad_height = 90;</script>
+		<script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>	
+	</body>
+</html>

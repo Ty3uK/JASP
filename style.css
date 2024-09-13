@@ -1,0 +1,90 @@
+body, html {background: #e7e7e7; margin: 0; padding: 0;}
+
+body a {
+	text-decoration: none;
+	color: #0066cc;
+	font-weight: bold;
+}
+
+#page {
+	background: #fff;
+	margin: 32px auto;
+	width: 740px;
+	border: 1px solid #777777;
+	border-radius: 10px;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	display: line;
+	min-height: 600px;
+}
+
+#header {
+	margin: 10px auto auto auto;
+	height: 182px;
+	background: url(images/header.PNG);
+	width: 720px;
+}
+
+#header h2 {
+	font-family: georgia;
+	font-style: italic;
+	color: #fff;
+	text-shadow: #000000 1px 1px 2px, #000000 2px 2px 4px;
+	text-align: center;
+}
+
+#header h4 {
+	font-family: georgia;
+	font-weight: bold;
+	color: #fff;
+	text-shadow: #000000 1px 1px 2px, #000000 2px 2px 4px;
+	text-align: center;
+}
+
+#header a {
+	text-decoration: none;
+	color: #fff;
+}
+
+#lang {
+	text-align: right;
+	padding: 10px 10px 0px 0px;
+}
+
+.menu {
+	display: inline;
+	float: left;
+	font-family: georgia;
+	font-weight: bold;
+	color: #fff;
+	text-shadow: #000000 1px 1px 2px, #000000 2px 2px 4px;
+	padding: 23px 50px 0px 60px;
+}
+
+#main {
+	padding: 0px 30px 0px 30px;
+	width: 680px;
+}
+
+#footer {
+	font: italic bold 9pt georgia;
+	text-align: center;
+}
+
+#footer a {
+	color: #000000;
+}
+
+.clickable {
+	padding: 5px;
+	border: 1px dashed #777777;
+}
+
+.clickable:hover {
+	cursor: pointer;
+	border-color: #FF9900;
+}
+
+.iwrap {
+	font: 8pt georgia; 
+}
